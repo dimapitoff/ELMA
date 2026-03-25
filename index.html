@@ -1,0 +1,250 @@
+<!-- ELMA365 Widget Template - Таблица процессов с пагинацией -->
+<div class="process-table-outer">
+    <div class="table-controls">
+        <label class="toggle-label">
+            <input type="checkbox" id="toggleMessageColumn">
+            <span>Показывать столбец "Оригинальное сообщение"</span>
+        </label>
+        <div class="pagination-controls">
+            <button id="prevPageBtn" class="pagination-btn" type="button">← Предыдущая</button>
+            <span id="pageInfo" class="page-info">Страница 1</span>
+            <button id="nextPageBtn" class="pagination-btn" type="button">Следующая →</button>
+        </div>
+    </div>
+    
+    <table class="process-table">
+        <thead>
+            <tr>
+                <th class="process-table-header" style="border-radius: 10px 0 0 0;">Дата запуска</th>
+                <th class="process-table-header">Код результата обработки</th>
+                <th class="process-table-header">Текст ошибки</th>
+                <th class="process-table-header">Наименование партиции</th>
+                <th class="process-table-header col-message">Оригинальное сообщение</th>
+                <th class="process-table-header">Ссылка на экземпляр процесса</th>
+                <th class="process-table-header">Ошибка</th>
+                <th class="process-table-header" style="border-radius: 0 10px 0 0;">Статус обработки</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (Context.data.processesArray && Context.data.processesArray.length > 0) { %>
+                <% for (let process of Context.data.processesArray) { %>
+                    <tr class="process-table-row">
+                        <td class="process-table-item"><%= process.date %></td>
+                        <td class="process-table-item"><%= process.status_code %></td>
+                        <td class="process-table-item"><%= process.is_error %></td>
+                        <td class="process-table-item"><%= process.topic %></td>
+                        <td class="process-table-item col-message">
+                            <div class="process-table-log"><%= process.value %></div>
+                        </td>
+                        <td class="process-table-item">
+                            <a href="${process.link}" target="_blank">
+                                ${process.name}
+                            </a>
+                        </td>
+                        <td class="process-table-item"><%= process.errorText %></td>
+                        <td class="process-table-item">
+                            <p class="<%= process.color %>"><%= process.state %></p>
+                        </td>
+                    </tr>
+                <% } %>
+            <% } else { %>
+                <tr>
+                    <td colspan="8" class="process-table-empty">Список пуст</td>
+                </tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .table-controls {
+        margin-bottom: 15px;
+        padding: 10px;
+        background-color: #f5f5f5;
+        border-radius: 8px;
+    }
+    
+    .toggle-label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        font-size: 14px;
+        color: #333;
+    }
+    
+    .toggle-label input[type="checkbox"] {
+        margin-right: 10px;
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+    
+    .process-table-empty {
+        padding: 10px 10px;
+        text-align: center;
+    }
+    
+    .process-table-outer {
+        overflow-x: auto;
+        height: 75vh;
+    }
+    
+    .process-table thead {
+        position: sticky;
+        z-index: 999;
+        top: 0;
+    }
+    
+    .process-table {
+        font-size: 16px;
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-family: sans-serif;
+        margin-bottom: 20px;
+        background-color: #fff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border-radius: 12px;
+    }
+    
+    .process-table-header {
+        background-color: #386143;
+        color: white;
+        padding: 14px 15px;
+        text-align: left;
+        font-weight: 600;
+        border: none;
+        top: 0;
+        text-align: center;
+    }
+    
+    .process-table-row {}
+    
+    .process-table-item {
+        padding: 10px 10px;
+        text-align: center;
+        border-bottom: 1px solid #d5d5d5;
+    }
+    
+    .process-table-log {
+        height: 100px;
+        overflow-x: auto;
+        display: block;
+    }
+    
+    .process-table[data-hide-message="true"] .col-message {
+        display: none !important;
+    }
+    
+    .green {
+        background-color: #0070002b;
+        color: #007000;
+        padding: 5px;
+        border-radius: 30px;
+    }
+    
+    .yellow {
+        background-color: #ff8a003b;
+        color: #ff8a00;
+        padding: 5px;
+        border-radius: 30px;
+    }
+    
+    .red {
+        background-color: #c2010136;
+        color: #c20101;
+        padding: 5px;
+        border-radius: 30px;
+    }
+
+    .pagination-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .pagination-btn {
+        padding: 8px 16px;
+        background-color: #386143;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .pagination-btn:hover {
+        background-color: #2d4d35;
+    }
+
+    .pagination-btn:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+
+    .page-info {
+        font-size: 14px;
+        color: #333;
+        font-weight: 500;
+        min-width: 80px;
+        text-align: center;
+    }
+</style>
+
+<script>
+    (function() {
+        setTimeout(function() {
+            initToggle();
+        }, 100);
+        
+        function initToggle() {
+            const toggleCheckbox = document.getElementById('toggleMessageColumn');
+            const processTable = document.querySelector('.process-table');
+            
+            if (!toggleCheckbox || !processTable) {
+                setTimeout(initToggle, 200);
+                return;
+            }
+            
+            function updateVisibility() {
+                const isChecked = toggleCheckbox.checked;
+                processTable.setAttribute('data-hide-message', !isChecked);
+            }
+            
+            toggleCheckbox.addEventListener('change', updateVisibility);
+            
+            updateVisibility();
+        }
+    })();
+    
+    (function() {
+        setTimeout(function() {
+            initPagination();
+        }, 100);
+        
+        function initPagination() {
+            const prevBtn = document.getElementById('prevPageBtn');
+            const nextBtn = document.getElementById('nextPageBtn');
+            
+            if (!prevBtn || !nextBtn) {
+                setTimeout(initPagination, 200);
+                return;
+            }
+            
+            prevBtn.addEventListener('click', function() {
+                if (window.loadPreviousPage) {
+                    window.loadPreviousPage();
+                }
+            });
+            
+            nextBtn.addEventListener('click', function() {
+                if (window.loadNextPage) {
+                    window.loadNextPage();
+                }
+            });
+        }
+    })();
+</script>
